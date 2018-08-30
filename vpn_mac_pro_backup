@@ -1,0 +1,37 @@
+#!/bin/bash
+
+export PATH="$(/Users/errollloyd/.dotfiles/custom_path.sh)"
+
+
+## TODO
+# add error detection so time log not made when no backup
+
+tm_fmt="$(cat /Users/errollloyd/.mac_pro_backup/backup_time_format)"
+
+# Purpose is to start a terminal window which runs backup scripts which require manual entry of passwords
+# Gets run by crontab
+
+# the binary of Cisco's anytime connect
+# starts interactive prompt for logging into VPN - requires username (saved) and password
+# vpn -s connect remote.unimelb.edu.au/student
+/Users/errollloyd/bin/vpn_unimelb
+
+# once connected, ssh rsync will be run ... echo to make clear
+echo -e "SSH R-sync into mac_pro (phd_mac_pro_backup)\n"
+
+# perform rsync
+/Users/errollloyd/bin/phd_mac_pro_backup
+
+
+# $?, if previous command was phd_mac_pro, should be exit code of that script
+
+if [[ "$?" == "0" ]]; then
+	#Log time of backup into log
+	date -j +$tm_fmt >> /Users/errollloyd/.mac_pro_backup/backup_log
+	echo -e "\nRSYNC --- success!!\n"
+else
+	echo -e "\nRSYNC --- Not successful :(\n"
+fi
+
+# once rsync is done, disconnect
+vpn disconnect

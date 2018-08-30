@@ -1,0 +1,5 @@
+# use cisco anytime to vpn into unimelb network
+
+# will require manual entry of password
+
+vpn -s connect remote.unimelb.edu.au/student

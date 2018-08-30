@@ -1,0 +1,9 @@
+tm_fmt="$(cat /Users/errollloyd/.mac_pro_backup/backup_time_format)"
+prev_log="$(tail -n 1 /Users/errollloyd/.mac_pro_backup/backup_log)"
+
+now="$(date -j +'%s')"
+
+prev_time="$(date -j -f $tm_fmt $prev_log +'%s')"
+
+printf "%0.2f\n" $(echo "scale=2;($now-$prev_time)/(24*60*60)" | bc )
+# echo $(echo "scale=2;($now-$prev_time)/(24*60*60)" | bc )

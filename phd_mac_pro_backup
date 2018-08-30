@@ -1,0 +1,16 @@
+#!/bin/bash
+
+tm_fmt="$(cat /Users/errollloyd/.mac_pro_backup/backup_time_format)"
+
+# Gets date and time for backup directory of rsync
+now=$(date -j +$tm_fmt)
+
+# rsync local -> macpro with ssh (requires password currently)
+# Dropbox science directory -> macPro/science_backup
+# archive mode and verbose mode
+
+# rsync -avb -e ssh --backup-dir=old_files/$now  /Users/errollloyd/Dropbox/Science/ Errol@errol-mac-pro.mobility.unimelb.net.au:~/science_backup/
+
+# turn off permissions, due to chmod issues on mac_pro (don't know why)
+# add executable in home that x permissions can be retained (may not work)
+rsync -avb --no-perms --executability -e ssh --backup-dir=old_files/$now  /Users/errollloyd/Dropbox/Science/ Errol@errol-mac-pro.mobility.unimelb.net.au:~/science_backup/
