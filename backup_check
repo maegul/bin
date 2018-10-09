@@ -4,7 +4,7 @@ export PATH="$(/Users/errollloyd/.dotfiles/custom_path.sh)"
 
 # date -j +'%Y_%m_%d_%H_%M' >> /Users/errollloyd/.mac_pro_backup/test
 
-threshold="1d"
+threshold="36H"
 
 displ_arg="-v-$threshold"
 
