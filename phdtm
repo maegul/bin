@@ -1,25 +1,14 @@
 #! /usr/bin/python
+from __future__ import division
 
-# print('hello world')
-
+import sys
 from sys import argv
-
 import datetime as datetime
 from datetime import date
+from dateutil.relativedelta import relativedelta as rd
+
 import time
 
-args = [
-	'-d', '--date', 
-	'-t', '--time'
-	]
-
-# if len(argv) == 2:
-
-
-# else:
-
-
-fourYrMk = date(2019, 8, 19)
 
 def sE(date):
 	'''
@@ -36,18 +25,86 @@ def sE(date):
 
 	return tm
 
+args = [
+	'-d', '--date',# input date, get ellapsed time out 
+	'-t', '--time' # input time, get date of that ellapsed time
+	]
 
-# Distance from now to four year mark
+# if len(argv) == 2:
+
+
+# else:
+
+
+fourYrMk = date(2019, 8, 19)
+
+rate = 2 # part time (twice as slow)
 
 now = date.today()
 
-date.today()
+fourYrMk_epoch = sE(fourYrMk)
+now_epoch = sE(now)
 
-datetime.datetime.fromtimestamp()
+yearDuration = (date(now.year+1, 1, 1) - date(now.year, 1, 1)).total_seconds()
+
+# Distance from now to four year mark
+diff_secs = fourYrMk_epoch - now_epoch
+
+# if earlier than 4 yr mark
+if diff_secs > 0: 
+
+	# Halve to reflect that part time
+	diff_secs /= rate
 
 
 
-# Express as - decimal years, years, mnths and days, years, months and days to go
+ellapsed_secs = (4*yearDuration) - diff_secs
+ellapsed_yrs = ellapsed_secs / yearDuration
+ellapsed = round(ellapsed_yrs, 4)
+
+virtual_ellapsed_date = datetime.datetime.fromtimestamp(fourYrMk_epoch - diff_secs)
+virtual_start_date = fourYrMk + rd(years=-4)
+ellapsed_date = rd(virtual_ellapsed_date,virtual_start_date)
+
+
+if rate != 1:
+	print('Running at 1/%s time\n' %(rate))
+
+print('Years:\n\t%s' % ellapsed)
+print('Time:\n\t%s yrs, %s mnths, %s days' %(ellapsed_date.years, ellapsed_date.months, ellapsed_date.days))
 
 
 
+arg_len = len(argv)
+
+if arg_len > 1:
+	opt = argv[1]
+	assert opt in args, 'invalid flag'
+
+	# Time option
+	if opt == args[2] or opt == args[3]:
+		assert arg_len == 3, 'provide time for new date'
+		try:
+			tm_opt = float(argv[2])
+		except ValueError as err:
+			print('\n')
+			print(err)
+			print('Provide appropriate time - decimal years\n')
+
+			sys.exit()
+
+		if tm_opt < 4:
+			multiplier = rate
+
+		# part time no longer applies after 4 years
+		elif tm_opt >= 4:
+			multiplier = 1
+
+		new_tm_diff_secs = (4-tm_opt)*yearDuration * multiplier
+		new_tm_epoch = fourYrMk_epoch - new_tm_diff_secs
+
+		new_tm_date = datetime.datetime.fromtimestamp(new_tm_epoch)
+
+
+		print('\n')
+		print('Date (%s yrs):\n\t'%(tm_opt) + new_tm_date.strftime('%d %b %y'))
