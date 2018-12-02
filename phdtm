@@ -1,0 +1,53 @@
+#! /usr/bin/python
+
+# print('hello world')
+
+from sys import argv
+
+import datetime as datetime
+from datetime import date
+import time
+
+args = [
+	'-d', '--date', 
+	'-t', '--time'
+	]
+
+# if len(argv) == 2:
+
+
+# else:
+
+
+fourYrMk = date(2019, 8, 19)
+
+def sE(date):
+	'''
+	Return seconds since epoch
+	'''
+
+	# return seconds since epick from time tuple
+	sepch = time.mktime
+
+	if isinstance(date, datetime.date):
+		tm = sepch(date.timetuple())
+	elif isinstance(date, time.struct_time):
+		tm = sepch(date)
+
+	return tm
+
+
+# Distance from now to four year mark
+
+now = date.today()
+
+date.today()
+
+datetime.datetime.fromtimestamp()
+
+
+
+# Express as - decimal years, years, mnths and days, years, months and days to go
+
+
+
