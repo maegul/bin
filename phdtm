@@ -136,11 +136,12 @@ print("4 yr mk: \n\t%s"%(fourYrMk.strftime("%a %d-%m-%Y")))
 
 if inLeave:
 	print('#####\nIN LEAVE\n#####\n')
-	print('LEAVE: %s to %s\n'%(
+	print('LEAVE: %s to %s'%(
 		leaveTimes[currentLeaveIdx][0].strftime('%d-%m-%Y'),
 		leaveTimes[currentLeaveIdx][1].strftime('%d-%m-%Y')
 		)
 	)
+	print('%s days remaining'%(leaveTimes[currentLeaveIdx][1] - nowDate).days)
 	print('candidature frozen at start of leave\n')
 	print('Four Yr Mark after leave: %s'%fourYrDates[-1].strftime('%d-%m-%Y'))
 	print('#####\n')
