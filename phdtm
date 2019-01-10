@@ -1,10 +1,18 @@
 #! /usr/bin/python
+# This is system python (2.7)
+
+# Required dateutil library installed for whereever python is being used
+# this is for relativedelta, which could be replaced with stdLib ... (?):
+# from datetime import timedelta as td
+
 from __future__ import division
+
 
 import sys
 from sys import argv
 import datetime as datetime
 from datetime import date
+
 from dateutil.relativedelta import relativedelta as rd
 
 import time
@@ -30,22 +38,73 @@ args = [
 	'-t', '--time' # input time, get date of that ellapsed time
 	]
 
-# if len(argv) == 2:
 
 
-# else:
+# Lock in four year date
+# fourYrMk = date(2019, 8, 19)
+
+# fourYrMk = date(2019, 10, 17)
+
+# four year dates correspond to after end of leaveTime at idx of fourYr - 1
+# ie date(2019, 10, 17) (idx=1) -> four year date after leave date(2019,1,7), date(2019,3,7) (idx = 0)
+fourYrDates = [
+	date(2019, 8, 19), # fourYrMark before first leave in leaveTimes
+	date(2019, 10, 17)
+]
+
+# at end of leave, fourYrMk is idx of leavetime + 1
+leaveTimes = [
+	[date(2019,1,7), date(2019,3,7)]
+]
+
+# part time (twice as slow)
+rate = 2 
+
+inLeave = False
+currentLeaveIdx = 0
 
 
-fourYrMk = date(2019, 8, 19)
+nowDate = date.today()
 
-rate = 2 # part time (twice as slow)
+for i,lt in enumerate(leaveTimes):
+	# check if now is in leave times (start and end inclusive)
+	if nowDate >= lt[0] and nowDate <= lt[1]:
 
-now = date.today()
+		# create a now at the start of the leave period, as time is frozen then
+		# mktime to find seconds since epoch, localtime to make time tuple, with
+		# system timezone etc
+		inLeave = True
+		currentLeaveIdx = i
+
+		now = time.localtime(time.mktime(lt[0].timetuple()))
+
+		# set fourYrMark to that corresponding to before current leave started
+		# as candidature is frozen at this state
+		fourYrMk = fourYrDates[i]
+
+		break # found that in leave period, defined now, and so we're done
+
+
+# Not currently in leave period, for loop not broken out of, so now is
+# actually now
+else:
+	now = time.localtime()
+	# Take most recent four yr mark, as we're not in leave
+	fourYrMk = fourYrDates[-1]
+	
+# now = time.localtime()
+
+# Key times points - now and four year mark, in seconds since epoch
+
+
+current_year = now.tm_year
 
 fourYrMk_epoch = sE(fourYrMk)
 now_epoch = sE(now)
 
-yearDuration = (date(now.year+1, 1, 1) - date(now.year, 1, 1)).total_seconds()
+# Year Duration ... of current year, which incorporates leap year
+# in seconds
+yearDuration = (date(current_year+1, 1, 1) - date(current_year, 1, 1)).total_seconds()
 
 # Distance from now to four year mark
 diff_secs = fourYrMk_epoch - now_epoch
@@ -57,18 +116,34 @@ if diff_secs > 0:
 	diff_secs /= rate
 
 
-
 ellapsed_secs = (4*yearDuration) - diff_secs
 ellapsed_yrs = ellapsed_secs / yearDuration
 ellapsed = round(ellapsed_yrs, 4)
 
+# Calculate ellapsed time expressed in years,mnths etc
+# Do so by calculating start and current dates as though no leave were taken
+# Then find difference between these dates
 virtual_ellapsed_date = datetime.datetime.fromtimestamp(fourYrMk_epoch - diff_secs)
-virtual_start_date = fourYrMk + rd(years=-4)
+virtual_start_date = fourYrMk - rd(years=4)
+# Ellapsed time in years, mnths etc
 ellapsed_date = rd(virtual_ellapsed_date,virtual_start_date)
 
 
 if rate != 1:
-	print('Running at 1/%s time\n' %(rate))
+	print('\nRunning at 1/%s time\n' %(rate))
+
+print("4 yr mk: \n\t%s"%(fourYrMk.strftime("%a %d-%m-%Y")))
+
+if inLeave:
+	print('#####\nIN LEAVE\n#####\n')
+	print('LEAVE: %s to %s\n'%(
+		leaveTimes[currentLeaveIdx][0].strftime('%d-%m-%Y'),
+		leaveTimes[currentLeaveIdx][1].strftime('%d-%m-%Y')
+		)
+	)
+	print('candidature frozen at start of leave\n')
+	print('Four Yr Mark after leave: %s'%fourYrDates[-1].strftime('%d-%m-%Y'))
+	print('#####\n')
 
 print('Years:\n\t%s' % ellapsed)
 print('Time:\n\t%s yrs, %s mnths, %s days' %(ellapsed_date.years, ellapsed_date.months, ellapsed_date.days))
@@ -100,11 +175,18 @@ if arg_len > 1:
 		elif tm_opt >= 4:
 			multiplier = 1
 
+		# Take latest four year mark, as make calculation from
+		# end of latest or current leave
+		fourYrMk_epoch = sE(fourYrDates[-1])
+
 		new_tm_diff_secs = (4-tm_opt)*yearDuration * multiplier
 		new_tm_epoch = fourYrMk_epoch - new_tm_diff_secs
 
 		new_tm_date = datetime.datetime.fromtimestamp(new_tm_epoch)
 
-
 		print('\n')
 		print('Date (%s yrs):\n\t'%(tm_opt) + new_tm_date.strftime('%d %b %y'))
+
+
+		if inLeave:
+			print('\nas in leave, this date is calculated by starting after end of leave')
