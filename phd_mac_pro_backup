@@ -14,3 +14,4 @@ now=$(date -j +$tm_fmt)
 # turn off permissions, due to chmod issues on mac_pro (don't know why)
 # add executable in home that x permissions can be retained (may not work)
 rsync -avb --no-perms --executability -e ssh --backup-dir=old_files/$now  /Users/errollloyd/Dropbox/Science/ Errol@errol-mac-pro.mobility.unimelb.net.au:~/science_backup/
+rsync -avb --no-perms --executability -e ssh --backup-dir=old_files/$now  /Volumes/MagellanX/PhD/ Errol@errol-mac-pro.mobility.unimelb.net.au:~/data_backup/
