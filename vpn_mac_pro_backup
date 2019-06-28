@@ -3,18 +3,29 @@
 export PATH="$(/Users/errollloyd/.dotfiles/custom_path.sh)"
 
 
-## TODO
-# add error detection so time log not made when no backup
 
 tm_fmt="$(cat /Users/errollloyd/.mac_pro_backup/backup_time_format)"
 
 # Purpose is to start a terminal window which runs backup scripts which require manual entry of passwords
 # Gets run by crontab
 
-# the binary of Cisco's anytime connect
-# starts interactive prompt for logging into VPN - requires username (saved) and password
-# vpn -s connect remote.unimelb.edu.au/student
-/Users/errollloyd/bin/vpn_unimelb
+# Checking if on uniwireless
+# networksetup is macOS utilitity (all the network things)
+# en0 is the Wi-Fi device (check with > networksetup -listnetworkserviceorder)
+# "UniWireless" is name of network (see in system preferences - network)
+# this variable will be empty if not connected to UniWireless
+# use exit code of 0 for if connected, else 1 for not connected (grep exits with 1 when no lines selected)
+uni_wireless=$(networksetup -getairportnetwork en0 | grep UniWireless)
+
+
+# If not on uniwireless
+if [[ "$?" == "1" ]]; then
+
+	# the binary of Cisco's anytime connect
+	# starts interactive prompt for logging into VPN - requires username (saved) and password
+	# vpn -s connect remote.unimelb.edu.au/student
+	/Users/errollloyd/bin/vpn_unimelb
+fi
 
 # once connected, ssh rsync will be run ... echo to make clear
 echo -e "SSH R-sync into mac_pro (phd_mac_pro_backup)\n"
