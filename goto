@@ -1,0 +1,81 @@
+#! /usr/bin/env python3
+
+# create and call on a list of pivotal directories used for major projects
+
+####
+####
+# python is subprocess - any directory change is local and does not affect parent process
+# So using pbcopy to copy into clipboard (mac only)
+
+# add ability to give each path a name or title, read it from file, and print it in the list
+
+
+import os
+from subprocess import Popen, PIPE
+
+DATA_PATH = '~/.goto/pathData'
+DATA_PATH = os.path.expanduser(DATA_PATH)
+
+copy_proc = Popen(['pbcopy'], stdin = PIPE)
+
+args = [
+	['-a', 'add directory'],
+	['-l', 'list all']
+]
+
+
+# read directory file
+
+def read_data():
+	with open(DATA_PATH, 'r') as f:
+		data = f.readlines()
+	data = [
+		[i, p.strip().replace(' ', '\ ')] #forward slash for shell and spaces in paths
+		for i,p in enumerate(data)
+	]
+
+	return data
+
+# list directories with corresponding numbers, awaiting numerical input
+
+def print_paths(return_paths = True):
+	paths = read_data()
+
+	for p in paths:
+		print(f'{p[0]}.  {p[1]}')
+
+	if return_paths:
+		return paths
+
+
+def goto_select():
+	paths = print_paths()
+	path_ids = range(len(paths))
+
+	selection = input('\nselect dir n: ')
+
+	if selection == 'q':
+		return
+
+	else:
+		selection = int(selection)
+
+
+	if (selection) not in path_ids:
+		print('not available')
+
+	else:
+		path = os.path.expanduser(
+				paths[(selection)][1]
+			)
+		copy_proc.communicate(input=path.encode('utf-8'))
+		copy_proc.kill()
+
+
+
+
+goto_select()
+
+
+# goto directory selected
+
