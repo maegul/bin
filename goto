@@ -11,7 +11,10 @@
 
 
 import os
-from subprocess import Popen, PIPE
+import subprocess as subp
+
+Popen = subp.Popen
+PIPE = subp.PIPE
 
 DATA_PATH = '~/.goto/pathData'
 DATA_PATH = os.path.expanduser(DATA_PATH)
@@ -24,25 +27,94 @@ args = [
 ]
 
 
-# read directory file
+
+
+class Colorcodes:
+	"""
+	    Provides ANSI terminal color codes which are gathered via the ``tput``
+	    utility. That way, they are portable. If there occurs any error with
+	    ``tput``, all codes are initialized as an empty string.
+	    The provides fields are listed below.
+	    Control:
+	    - bold
+	    - reset
+	    Colors:
+	    - blue
+	    - green
+	    - orange
+	    - red
+	    :license: MIT
+	"""
+
+	def ANSIRGB(self, R, G, B):
+		return 16 + R*36 + G*6 + B
+
+	def mk_TPUT(self, *args):
+
+		return subp.check_output(['tput', *map(str, args)], text=True)
+		# return subp.check_output(('tput ' + ' '.join(map(str, args))).split(), text=True)
+
+
+	def __init__(self):
+
+		self.RGB_cols = dict(
+				blue = self.ANSIRGB(0, 2, 4),
+				green = self.ANSIRGB(1, 3, 1),
+				orange = self.ANSIRGB(3, 3, 1),
+				red = self.ANSIRGB(5, 1, 1)
+			)
+
+		try:
+			# self.bold = subp.check_output("tput bold".split())
+			# self.reset = subp.check_output("tput sgr0".split())
+
+			self.__dict__['bold'] = self.mk_TPUT('bold')
+			self.__dict__['reset'] = self.mk_TPUT('sgr0')
+
+			for col, val in self.RGB_cols.items():
+				self.__dict__[col] = self.mk_TPUT('setaf', val)
+
+
+			# self.blue = subp.check_output(f"tput setaf {self.RGB_cols['blue']}".split())
+			# self.green = subp.check_output(f"tput setaf {self.RGB_cols['green']}".split())
+			# self.orange = subp.check_output(f"tput setaf {self.RGB_cols['orange']}".split())
+			# self.red = subp.check_output(f"tput setaf {self.RGB_cols['red']}".split())
+
+		except subp.CalledProcessError:
+			self.bold = ""
+			self.reset = ""
+
+			for col in self.RGB_cols.keys():
+				self.__dict__[col] = ""
+			# self.blue = ""
+			# self.green = ""
+			# self.orange = ""
+			# self.red = ""
+
+
+_c = Colorcodes()
+
 
 def read_data():
 	with open(DATA_PATH, 'r') as f:
 		data = f.readlines()
 	data = [
-		[i, p.strip().replace(' ', '\ ')] #forward slash for shell and spaces in paths
+		p.split(',')
+		for p in data
+	]
+	data = [
+		[i, p[0], p[1].strip().replace(' ', '\\ ')] #forward slash for shell and spaces in paths
 		for i,p in enumerate(data)
 	]
 
 	return data
 
-# list directories with corresponding numbers, awaiting numerical input
 
 def print_paths(return_paths = True):
 	paths = read_data()
 
 	for p in paths:
-		print(f'{p[0]}.  {p[1]}')
+		print(f'{_c.bold}{_c.green}[{p[0]}]  {_c.red}{p[1]} \n {_c.reset}{_c.blue}{p[2]}{_c.reset}')
 
 	if return_paths:
 		return paths
@@ -74,8 +146,11 @@ def goto_select():
 
 
 
-goto_select()
+# print(read_data())
+
+if __name__ == '__main__':
+
+	goto_select()
 
 
-# goto directory selected
 
