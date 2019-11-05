@@ -1,5 +1,5 @@
-#! /usr/bin/python
-# This is system python (2.7)
+#! /usr/bin/env python2
+# This is user python2 (homebrew)
 
 # Required dateutil library installed for whereever python is being used
 # this is for relativedelta, which could be replaced with stdLib ... (?):
@@ -17,6 +17,10 @@ from dateutil.relativedelta import relativedelta as rd
 
 import time
 
+args = [
+	'-d', '--date',# input date, get ellapsed time out 
+	'-t', '--time' # input time, get date of that ellapsed time
+	]
 
 def sE(date):
 	'''
@@ -33,10 +37,6 @@ def sE(date):
 
 	return tm
 
-args = [
-	'-d', '--date',# input date, get ellapsed time out 
-	'-t', '--time' # input time, get date of that ellapsed time
-	]
 
 
 
@@ -45,17 +45,43 @@ args = [
 
 # fourYrMk = date(2019, 10, 17)
 
+####
+# Would be nice to have a "veridical" mode by which durations and time to go etc are calculated from
+# the first four year mark and the sum of leaves since recorded ... as a way to check and not rely on
+# the Universities calculations
+####
+
+####
+# Also nice to have the program report how much leave I have left, taking a starting point from 
+# the leave form, and then summing all leave to report this.
+####
+
 # four year dates correspond to after end of leaveTime at idx of fourYr - 1
 # ie date(2019, 10, 17) (idx=1) -> four year date after leave date(2019,1,7), date(2019,3,7) (idx = 0)
 fourYrDates = [
 	date(2019, 8, 19), # fourYrMark before first leave in leaveTimes
-	date(2019, 10, 17)
+	date(2019, 11, 11), # predicted fourYrMark after first leave in leaveTimes logged
+        date(2020, 1, 27)
 ]
 
 # at end of leave, fourYrMk is idx of leavetime + 1
 leaveTimes = [
-	[date(2019,1,7), date(2019,3,7)]
+	[date(2019,1,7), date(2019,4,1)],
+        [date(2019,9,2), date(2019,11,18)]
 ]
+
+# Sourced from the leave application form (online) at end of first leave period
+# in leaveTimes
+leave_days_used = 509
+
+# cycle through all leave periods (except first) and add to leave days used
+# EVEN if currently in leave period, leave days used is from end of current
+# leave period
+for leave in leaveTimes[1:]:
+    leave_length_days = (leave[1] - leave[0]).days
+    leave_days_used+= leave_length_days
+
+leave_days_remaining = (365*2) - leave_days_used
 
 # part time (twice as slow)
 rate = 2 
@@ -148,6 +174,9 @@ if inLeave:
 
 print('Years:\n\t%s' % ellapsed)
 print('Time:\n\t%s yrs, %s mnths, %s days' %(ellapsed_date.years, ellapsed_date.months, ellapsed_date.days))
+
+print('Leave taken:\n\t%s days' % leave_days_used)
+print('Leave Remaining:\n\t%s days' % leave_days_remaining)
 
 
 
