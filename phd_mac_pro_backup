@@ -15,3 +15,5 @@ now=$(date -j +$tm_fmt)
 # add executable in home that x permissions can be retained (may not work)
 rsync -avb --no-perms --executability -e ssh --backup-dir=old_files/$now  /Users/errollloyd/Dropbox/Science/ Errol@errol-mac-pro.mobility.unimelb.net.au:~/science_backup/
 rsync -avb --no-perms --executability -e ssh --backup-dir=old_files/$now  /Volumes/MagellanX/PhD/ Errol@errol-mac-pro.mobility.unimelb.net.au:~/data_backup/
+rsync -avb --no-perms --executability -e ssh --backup-dir=old_files/$now  /Volumes/MagellanX/Zotero/ Errol@errol-mac-pro.mobility.unimelb.net.au:~/zotero_backup/
+
