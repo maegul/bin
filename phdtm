@@ -1,5 +1,5 @@
-#! /usr/bin/env python2
-# This is user python2 (homebrew)
+#! /usr/bin/env python3
+# This is user python3 (homebrew)
 
 # Required dateutil library installed for whereever python is being used
 # this is for relativedelta, which could be replaced with stdLib ... (?):
