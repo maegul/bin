@@ -61,13 +61,13 @@ def sE(date):
 fourYrDates = [
 	date(2019, 8, 19), # fourYrMark before first leave in leaveTimes
 	date(2019, 11, 11), # predicted fourYrMark after first leave in leaveTimes logged
-        date(2020, 1, 27)
+    date(2020, 2, 6)
 ]
 
 # at end of leave, fourYrMk is idx of leavetime + 1
 leaveTimes = [
 	[date(2019,1,7), date(2019,4,1)],
-        [date(2019,9,2), date(2019,11,18)]
+    [date(2019,9,2), date(2019,11,28)]
 ]
 
 # Sourced from the leave application form (online) at end of first leave period
