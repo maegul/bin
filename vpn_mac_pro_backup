@@ -39,9 +39,10 @@ echo -e "SSH R-sync into mac_pro (phd_mac_pro_backup)\n"
 if [[ "$?" == "0" ]]; then
 	#Log time of backup into log
 	date -j +$tm_fmt >> /Users/errollloyd/.mac_pro_backup/backup_log
-	echo -e "\nRSYNC --- success!!\n"
+	# escape sequences encode colors (92->green, 91->red)
+	echo -e "\033[0;92m\nRSYNC --- success!!\n"
 else
-	echo -e "\nRSYNC --- Not successful :(\n"
+	echo -e "\033[0;91m\nRSYNC --- Not successful :(\n"
 fi
 
 # once rsync is done, disconnect

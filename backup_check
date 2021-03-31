@@ -1,23 +1,23 @@
 #!/bin/bash
 
-export PATH="$(/Users/errollloyd/.dotfiles/custom_path.sh)"
+export PATH="$(~/.dotfiles/custom_path.sh)"
 
-# date -j +'%Y_%m_%d_%H_%M' >> /Users/errollloyd/.mac_pro_backup/test
+# date -j +'%Y_%m_%d_%H_%M' >> ~/.phd_backup/test
 
 threshold="36H"
 
 displ_arg="-v-$threshold"
 
-tm_fmt="$(cat /Users/errollloyd/.mac_pro_backup/backup_time_format)"
+tm_fmt="$(cat ~/.phd_backup/backup_time_format)"
 
 # get last time of backup
-prev_time=$(tail -n 1 /Users/errollloyd/.mac_pro_backup/backup_log)
+prev_time=$(tail -n 1 ~/.phd_backup/backup_success_times)
 
 # get current time minus threshold (1d?), in same format
 now=$(date -j $displ_arg +$tm_fmt)
 
 
 if [[ $now > $prev_time ]]; then
-	open -a Terminal /Users/errollloyd/bin/vpn_mac_pro_backup
-	# /Users/errollloyd/bin/vpn_mac_pro_backup
+	open -a Terminal ~/bin/phd_rsync_net_backup
+	# ~/bin/vpn_mac_pro_backup
 fi

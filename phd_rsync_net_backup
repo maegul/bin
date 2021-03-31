@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# early proto
+
+# get time format for logging
+tm_fmt="$(cat /Users/errollloyd/.phd_backup/backup_time_format)"
+log_location=~/.phd_backup/backup_log
+
+
+
+echo -e "\n$(date -j +$tm_fmt)" >> $log_location
+
+# back up phd scripts to /code on rsync
+echo -e "Science General" >> $log_location
+# Test
+# rsync -avz ~/.phd_backup/test rsync_net:test_location >> $log_location
+rsync -avz /Users/errollloyd/Dropbox/Science/ rsync_net:science_backup/general
+science_sync=$?
+
+echo -e "Data" >> $log_location
+# Test
+# rsync -avz ~/.phd_backup/test rsync_net:test_location
+rsync -avz /Volumes/MagellanX/PhD/ rsync_net:science_backup/data
+data_sync=$?
+
+echo -e "Zotero" >> $log_location
+# Test
+# rsync -avz ~/.phd_backup/test rsync_net:test_location
+rsync -avz /Volumes/MagellanX/Zotero/ rsync_net:science_backup/zotero
+zotero_sync=$?
+
+if [[ "$science_sync" == "0" && "$data_sync" == "0" && "$zotero_sync" == "0" ]]; then
+	#Log time of backup into log
+	# date -j +$tm_fmt >> ~/.mac_pro_backup/backup_log
+	date -j +$tm_fmt >> ~/.phd_backup/backup_success_times
+	# escape sequences encode colors (92->green, 91->red)
+	echo -e "\033[0;92m\nRSYNC --- success!!\n" >> $log_location
+else
+	echo -e "\033[0;91m\nRSYNC --- Not successful :(\n" >> $log_location
+fi

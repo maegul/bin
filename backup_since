@@ -1,5 +1,5 @@
-tm_fmt="$(cat /Users/errollloyd/.mac_pro_backup/backup_time_format)"
-prev_log="$(tail -n 1 /Users/errollloyd/.mac_pro_backup/backup_log)"
+tm_fmt="$(cat /Users/errollloyd/.phd_backup/backup_time_format)"
+prev_log="$(tail -n 1 /Users/errollloyd/.phd_backup/backup_success_times)"
 
 now="$(date -j +'%s')"
 
