@@ -1,0 +1,18 @@
+Rsync Scripts:
+  ▪ Add caffeinate to cronjob or main script
+    Not sure which is best ... as macOS specific ... bets in crontab
+  ▪ Incorporate `S3` script
+    ▪ Add appropriate logging to python script
+      Append text to same log file
+    ▪ Capture exit status and use in conditional
+      don't know how to get exit code from python to bash ..
+
+Refactor into Python:
+  ▪ Convert all bash to python
+    Time format should be consistent?
+    Can still just read from file?
+    ▪ Logging
+      Use subprocess for out and in?
+    ▪ Config and paths
+    ▪ Keep backup checks in bash though (timeformat should be consistent)
+    ▪ How manage exit codes?
