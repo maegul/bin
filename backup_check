@@ -18,6 +18,8 @@ now=$(date -j $displ_arg +$tm_fmt)
 
 
 if [[ $now > $prev_time ]]; then
-	open -a Terminal ~/bin/phd_rsync_net_backup
+	~/bin/phd_backup.py  # complete backup script
+	# ~/bin/phd_rsync_net_backup
+	# ~/bin/phd_backup_s3.py
 	# ~/bin/vpn_mac_pro_backup
 fi

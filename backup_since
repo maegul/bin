@@ -1,5 +1,8 @@
 tm_fmt="$(cat /Users/errollloyd/.phd_backup/backup_time_format)"
-prev_log="$(tail -n 1 /Users/errollloyd/.phd_backup/backup_success_times)"
+
+# success_times=/Users/errollloyd/.phd_backup/backup_success_times
+# use grep to filter out blank lines and line breaks
+prev_log="$(grep '.' /Users/errollloyd/.phd_backup/backup_success_times | tail -n 1)"
 
 now="$(date -j +'%s')"
 
