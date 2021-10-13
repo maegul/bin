@@ -75,7 +75,9 @@ class GenericGitBackup(DevDir):
 				_ = sp.check_output([
 						"git", "commit", "-am", f"updates as of {dt.date.today().isoformat()}"])
 			output = sp.check_output([
-					"git", "push"])
+					"git", "push"],
+					stderr=sp.STDOUT
+					)
 
 			return output.decode()
 			# else:
