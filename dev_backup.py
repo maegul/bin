@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 
 import os
 import logging
@@ -67,6 +67,12 @@ class DevDir:
 class GenericGitBackup(DevDir):
 
 	def backup(self):
+		"""
+		Git returns a non-zero status code for everything apart from
+		complete success (or so it seems)
+		So ... any problems should raise an exception (by subprocess) and result
+		in a success status of False
+		"""
 
 		with temp_dir(self.path):
 			# only if changes made
@@ -101,17 +107,22 @@ dev_dirs = [
 ]
 
 
-successes = {dd.name: False for dd in dev_dirs}
+def main():
 
-for dd in dev_dirs:
-	try:
-		main_logger.info(f'Backing up {dd.name} ({dd.path})')
-		result = dd.backup()
-		main_logger.debug(f'Output: {result}')
-		successes[dd.name] = True
-	except Exception as e:
-		main_logger.critical(f'Failed to backup {dd.name}', exc_info=True)
+	successes = {dd.name: False for dd in dev_dirs}
 
-if all(successes.values()):
-	success_logger.info(current_time())
+	for dd in dev_dirs:
+		try:
+			main_logger.info(f'Backing up {dd.name} ({dd.path})')
+			result = dd.backup()
+			main_logger.debug(f'Output: {result}')
+			successes[dd.name] = True
+		except Exception as e:
+			main_logger.critical(f'Failed to backup {dd.name}', exc_info=True)
 
+	if all(successes.values()):
+		success_logger.info(current_time())
+
+
+if __name__ == '__main__':
+	main()
