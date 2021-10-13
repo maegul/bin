@@ -72,10 +72,13 @@ class GenericGitBackup(DevDir):
 			# only if changes made
 			check = sp.check_output(['git', 'status', '--porcelain'])
 			if check:
-				output = sp.check_output([
+				_ = sp.check_output([
 						"git", "commit", "-am", f"updates as of {dt.date.today().isoformat()}"
 					]
 					)
+				output = sp.check_output([
+						"git", "push"
+					])
 				return output.decode()
 			else:
 				return 'No changes to commit'
