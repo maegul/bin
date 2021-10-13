@@ -46,7 +46,7 @@ success_logger.addHandler(success_time_handler)
 # > Utils
 
 def current_time():
-	return dt.datetime.utcnow().isoformat()
+	return dt.datetime.now().astimezone(dt.timezone.utc).isoformat()
 
 
 @contextmanager
