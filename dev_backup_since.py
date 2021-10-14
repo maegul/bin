@@ -12,7 +12,9 @@ time_since = dt.datetime.now().astimezone() - last_success_time.astimezone()
 
 time_since_days = time_since.total_seconds() / (3600 * 24)
 
-print(f'{time_since_days:.2f}')
+if __name__ == '__main__':
+	print(f'{time_since_days:.2f}')
+
 
 
 
