@@ -77,9 +77,14 @@ class GenericGitBackup(DevDir):
 		with temp_dir(self.path):
 			# only if changes made
 			check = sp.check_output(['git', 'status', '--porcelain'])
+			# check if untracked files
+			untracked = sp.check_output(['git', 'ls-files', '--others', '--exclude-standard'])
+
 			if check:
+				if untracked:
+					_ = sp.check_output(['git', 'add', '.'])
 				_ = sp.check_output([
-						"git", "commit", "-am", f"updates as of {dt.date.today().isoformat()}"])
+						"git", "commit", "-am", f"AUTO update on {dt.date.today().isoformat()}"])
 			output = sp.check_output([
 					"git", "push"],
 					stderr=sp.STDOUT
@@ -117,7 +122,7 @@ def main():
 			result = dd.backup()
 			main_logger.debug(f'Output: {result}')
 			successes[dd.name] = True
-		except Exception as e:
+		except Exception:
 			main_logger.critical(f'Failed to backup {dd.name}', exc_info=True)
 
 	if all(successes.values()):
