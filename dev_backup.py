@@ -82,6 +82,7 @@ class GenericGitBackup(DevDir):
 
 			if check:
 				if untracked:
+					# just add them all ... probably a better/safer/more direct way to do this
 					_ = sp.check_output(['git', 'add', '.'])
 				_ = sp.check_output([
 						"git", "commit", "-am", f"AUTO update on {dt.date.today().isoformat()}"])

@@ -32,7 +32,7 @@ SHELL=/bin/bash
 3 3 * * 1,2,3,4,5 /Users/errollloyd/bin/backup_check
 ```
 
-### Dependencies 
+### Dependencies
 
 * SSH setup for connection to rsync.net service
 	- see `~/.ssh/config` for alias
