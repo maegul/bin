@@ -109,6 +109,11 @@ dev_dirs = [
 	GenericGitBackup(
 		'dotfiles',
 		Path('~/.dotfiles/')
+		),
+	# might want to create a better backup situation around this
+	GenericGitBackup(
+		'my zettelkasten',
+		Path('~/zekell/')
 		)
 ]
 
