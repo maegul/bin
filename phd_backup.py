@@ -8,7 +8,6 @@ import os
 import logging
 from logging import handlers
 import datetime as dt
-# from typing import Union
 from collections import namedtuple
 import argparse
 
