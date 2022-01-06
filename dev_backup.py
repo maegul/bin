@@ -86,6 +86,8 @@ class GenericGitBackup(DevDir):
 					_ = sp.check_output(['git', 'add', '.'])
 				_ = sp.check_output([
 						"git", "commit", "-am", f"AUTO update on {dt.date.today().isoformat()}"])
+
+			# presumes that there is a remote!
 			output = sp.check_output([
 					"git", "push"],
 					stderr=sp.STDOUT
@@ -114,7 +116,11 @@ dev_dirs = [
 	GenericGitBackup(
 		'my zettelkasten',
 		Path('~/zekell/')
-		)
+		),
+	GenericGitBackup(
+		'my hammerspoon config',
+		Path('~/.hammerspoon/')
+		),
 ]
 
 
@@ -123,13 +129,16 @@ def main():
 	successes = {dd.name: False for dd in dev_dirs}
 
 	for dd in dev_dirs:
+		main_logger.info(f'Backing up {dd.name} ({dd.path})')
+		result = None
 		try:
-			main_logger.info(f'Backing up {dd.name} ({dd.path})')
 			result = dd.backup()
+		except Exception:
+			main_logger.debug(f'Output: {result}')
+			main_logger.critical(f'Failed to backup {dd.name}', exc_info=True)
+		else:  # on success
 			main_logger.debug(f'Output: {result}')
 			successes[dd.name] = True
-		except Exception:
-			main_logger.critical(f'Failed to backup {dd.name}', exc_info=True)
 
 	if all(successes.values()):
 		success_logger.info(current_time())
