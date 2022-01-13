@@ -113,6 +113,8 @@ dev_dirs = [
 		Path('~/.dotfiles/')
 		),
 	# might want to create a better backup situation around this
+	# !! as copying an open sqlite database can be corrupting??
+	# at least the files are there!
 	GenericGitBackup(
 		'my zettelkasten',
 		Path('~/zekell/')
