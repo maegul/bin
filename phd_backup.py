@@ -5,6 +5,7 @@
 import subprocess as sp
 from pathlib import Path
 import os
+import signal
 import logging
 from logging import handlers
 import datetime as dt
@@ -14,7 +15,7 @@ import argparse
 tm_fmt = Path('~/.phd_backup/backup_time_format').expanduser().read_text()
 current_time = lambda : dt.datetime.now().strftime(tm_fmt)
 
-BackUpPaths = namedtuple('BackUpPath', ['local', 'dest', 'type'])
+BackUpPaths = namedtuple('BackUpPath', ['local', 'dest', 'type', 'name'])
 
 # > Logging
 main_logger = logging.getLogger('phd_backup')
@@ -61,27 +62,33 @@ back_up_paths = (
     BackUpPaths(
         local= os.path.expanduser("~/Dropbox (Personal)/Science/"),
         dest = mk_s3_path("Science/"), 
-        type='s3'),  # all of science main
+        type='s3',
+        name='science work'),  # all of science main
     BackUpPaths(
         local = "/Volumes/MagellanX/PhD/Data/",
         dest = mk_s3_path("Data/"),
-        type = 's3'),  # actively analysed data
+        type = 's3',
+        name='science data'),  # actively analysed data
     BackUpPaths(
         local = "/Volumes/MagellanX/Zotero/",
         dest = mk_s3_path("Zotero/"),
-        type= 's3'),  # zotero papers repository (pdfs and database)
+        type= 's3',
+        name='zotero'),  # zotero papers repository (pdfs and database)
     BackUpPaths(
         local= os.path.expanduser("~/Dropbox (Personal)/Science/"),
         dest = mk_rysnc_path("science/"),
-        type='rsync_net'),  # all of science main
+        type='rsync_net',
+        name='science work'),  # all of science main
     BackUpPaths(
         local = "/Volumes/MagellanX/PhD/Data/",
         dest = mk_rysnc_path("data/"),
-        type = 'rsync_net'),  # actively analysed data
+        type = 'rsync_net',
+        name='science data'),  # actively analysed data
     BackUpPaths(
         local = "/Volumes/MagellanX/Zotero/",
         dest = mk_rysnc_path("zotero/"),
-        type= 'rsync_net'),  # zotero papers repository (pdfs and database)
+        type= 'rsync_net',
+        name='zotero'),  # zotero papers repository (pdfs and database)
 )
 
 
@@ -133,6 +140,47 @@ def backup(backup_type=None):
         main_logger.info(f'{paths.type.upper()}: Backing up {paths.local} --> {paths.dest}')
         backup_successes[paths] = False
 
+        # >> ensure zotero is closed before copying data (to prevent corruption)
+        # SHOULD BE WRAPPED UP INTO SOME CALLBACK STRUCTURE
+        if paths.name.lower() == 'zotero':
+            zotero_pid = None  # initialise
+            try:
+                # get process id (unix only)
+                zotero_pid = sp.check_output(['pgrep', '-i', 'zotero'])
+            except sp.CalledProcessError as e:
+                # check exit codes
+                # 2 and 3 = invalid or error (ie failed to get pid)
+                # BSD or macOS specific exit codes?
+                if e.returncode == 2 or e.returncode == 3:
+                    # therefore move on and this is a failure
+                    main_logger.critical(f'Failed to locate Zotero application pid, cannot close zotero and backup data')
+                    continue
+                # 1 means application pid simply not found
+                elif e.returncode == 1:
+                    # application isn't running
+                    zotero_pid = None
+                    main_logger.info('Zotero application is not running')
+            else:
+                main_logger.info(f'Zotero application running, pid: {zotero_pid}')
+
+            # if application is running
+            if zotero_pid is not None:
+                # try to kill
+                try:
+                    # convert to int
+                    # will fail if multiple pids come back (separated by new line) ... NOT HANDLED HERE!
+                    to_kill_pid = int(zotero_pid)
+                    # kill!
+                    os.kill(to_kill_pid, signal.SIGKILL)
+                except Exception as e:
+                    main_logger.critical(f'Failed to close Zotero application, cannot backup')
+                    # can't kill, therefore failure and move on
+                    main_logger.exception('')  # log exception
+                    continue
+                else:
+                    main_logger.info(f'Killed zotero application with pid {to_kill_pid}')
+
+        # >> attempt backup
         try:
             output = backup_funcs[paths.type](paths)
 
@@ -140,6 +188,7 @@ def backup(backup_type=None):
             backup_successes[paths] = True
 
         except sp.CalledProcessError as e:
+            # >> handle aws s3 return codes
             # returncode 2 for aws s3 means file skipped: https://docs.aws.amazon.com/cli/latest/topic/return-codes.html
             if paths.type == 's3' and e.returncode == 2:
                 main_logger.warning(f'Files skipped (exit status 2) for {paths.type.upper()}')
