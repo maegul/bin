@@ -17,7 +17,7 @@ current_time = lambda : dt.datetime.now().strftime(tm_fmt)
 
 BackUpPaths = namedtuple('BackUpPath', ['local', 'dest', 'type', 'name'])
 
-# > Logging
+# # Logging
 main_logger = logging.getLogger('phd_backup')
 main_logger.setLevel(10)
 success_logger = logging.getLogger('phd_backup_success')
@@ -48,7 +48,7 @@ main_logger.addHandler(log_handler)
 success_logger.addHandler(success_time_handler)
 
 
-# > Paths config
+# # Paths config
 # S3_BUCKET = 's3://errol-backup-bucket/'
 # PHD_PREFIX = 'phd_backup/'
 mk_s3_path = 's3://errol-backup-bucket/phd_backup/{}'.format
@@ -92,7 +92,7 @@ back_up_paths = (
 )
 
 
-# > Functions
+# # Functions
 def backup_s3(paths: BackUpPaths):
     "Sync local path to destination path on aws s3"
 
@@ -127,7 +127,7 @@ backup_funcs = {
 backup_successes = {}
 
 
-# > Main backup function
+# # Main backup function
 def backup(backup_type=None):
 
     for paths in back_up_paths:
@@ -140,8 +140,8 @@ def backup(backup_type=None):
         main_logger.info(f'{paths.type.upper()}: Backing up {paths.local} --> {paths.dest}')
         backup_successes[paths] = False
 
-        # >> ensure zotero is closed before copying data (to prevent corruption)
-        # SHOULD BE WRAPPED UP INTO SOME CALLBACK STRUCTURE
+        # ## ensure zotero is closed before copying data (to prevent corruption)
+        # ### !SHOULD BE WRAPPED UP INTO SOME CALLBACK STRUCTURE
         if paths.name.lower() == 'zotero':
             zotero_pid = None  # initialise
             try:
@@ -180,7 +180,7 @@ def backup(backup_type=None):
                 else:
                     main_logger.info(f'Killed zotero application with pid {to_kill_pid}')
 
-        # >> attempt backup
+        # ## attempt backup
         try:
             output = backup_funcs[paths.type](paths)
 
@@ -188,7 +188,7 @@ def backup(backup_type=None):
             backup_successes[paths] = True
 
         except sp.CalledProcessError as e:
-            # >> handle aws s3 return codes
+            # ## handle aws s3 return codes
             # returncode 2 for aws s3 means file skipped: https://docs.aws.amazon.com/cli/latest/topic/return-codes.html
             if paths.type == 's3' and e.returncode == 2:
                 main_logger.warning(f'Files skipped (exit status 2) for {paths.type.upper()}')
@@ -201,6 +201,21 @@ def backup(backup_type=None):
                 exc_info=True)
 
 
+        # ## Restart Zotero if closed?
+        if paths.name.lower() == 'zotero' and (zotero_pid is not None):  #  if zotero was running (and presumably closed?)
+            try:
+                # get process id (unix only)
+                main_logger.info('Attempting to reopen zotero as was closed for backup')
+                _ = sp.check_output(['open', '-a', 'Zotero'])
+            except Exception as e:
+                main_logger.exception('Failed to reopen Zotero')
+            else:
+                new_zotero_pid = sp.check_output(['pgrep', '-i', 'zotero'])
+                main_logger.info(f'Zotero running again with pid {new_zotero_pid}')
+
+
+
+
 
     if all(backup_successes.values()):
         success_logger.info(current_time())
@@ -209,7 +224,7 @@ def backup(backup_type=None):
             main_logger.info(f'{"SUCCESS" if v else "FAILED"}: {k.type}:{k.local}')
 
 
-# > Argument parsing and running
+# # Argument parsing and running
 parser = argparse.ArgumentParser(description='Backup PhD materials')
 
 parser.add_argument('-t', '--type',
