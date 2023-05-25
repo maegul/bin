@@ -65,12 +65,12 @@ back_up_paths = (
         type='s3',
         name='science work'),  # all of science main
     BackUpPaths(
-        local = "/Volumes/MagellanX/PhD/Data/",
+        local = "/Volumes/MagellanSG/PhD/Data/",
         dest = mk_s3_path("Data/"),
         type = 's3',
         name='science data'),  # actively analysed data
     BackUpPaths(
-        local = "/Volumes/MagellanX/Zotero/",
+        local = "/Volumes/MagellanSG/Zotero/",
         dest = mk_s3_path("Zotero/"),
         type= 's3',
         name='zotero'),  # zotero papers repository (pdfs and database)
@@ -80,12 +80,12 @@ back_up_paths = (
         type='rsync_net',
         name='science work'),  # all of science main
     BackUpPaths(
-        local = "/Volumes/MagellanX/PhD/Data/",
+        local = "/Volumes/MagellanSG/PhD/Data/",
         dest = mk_rysnc_path("data/"),
         type = 'rsync_net',
         name='science data'),  # actively analysed data
     BackUpPaths(
-        local = "/Volumes/MagellanX/Zotero/",
+        local = "/Volumes/MagellanSG/Zotero/",
         dest = mk_rysnc_path("zotero/"),
         type= 'rsync_net',
         name='zotero'),  # zotero papers repository (pdfs and database)
