@@ -90,6 +90,7 @@ def make_url_preview_datetime_list_of_reading_list(
 
 	new_rl_data = []
 	for i, rl_item in enumerate(reading_list_items):
+		# passing over a lack of URL silently!!! Oooof!  Still, of no URL, who cares ... ?
 		if has_url[i]:
 			preview = None
 			date_added_str = None
@@ -141,9 +142,11 @@ if __name__ == '__main__':
 			default='JSON'
 		)
 
+	SORT_OPTIONS = {'title': 'title', 'date': 'date_added'}
 	parser.add_argument(
 			'--sort',
 			help='Whether to sort and if so by what value (title, date) (default is no sort)',
+			choices=SORT_OPTIONS.keys(),
 			default = None
 		)
 
@@ -164,11 +167,15 @@ if __name__ == '__main__':
 		sys.exit()
 
 	if args.sort:
-		if not args.sort in new_rl_data[0]:
-			print(f'Sort value not found in data ({args.sort})')
+		# check sort value actually available (could enforce in argparse, but maybe this is more flexible?)
+		sort_value = SORT_OPTIONS[args.sort]
+		if not sort_value in new_rl_data[0]:
+			print(f'Sort value not found in data ({sort_value})', file=sys.stderr)
+			sys.exit()
+
 		new_rl_data = sorted(
 					new_rl_data,
-					key = lambda x: x.get(args.sort) or 0,
+					key = lambda x: x.get(sort_value) or '',
 					reverse = args.reverse
 				)
 
