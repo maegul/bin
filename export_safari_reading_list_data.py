@@ -5,14 +5,25 @@ from argparse import ArgumentParser
 from pathlib import Path
 import json
 from textwrap import dedent
+import datetime as dt
 
 import plistlib
 from typing import Optional, List, Dict
+
+# for printing errors
+
+def print_err(*args):
+	'Print but to sys.stderr'
+	print(*args, file=sys.stderr)
+
+# # Constants
 
 # title of the reading list array in the XML/Dict
 READING_LIST_TITLE = 'com.apple.ReadingList'
 
 BOOKMARKS_PATH_DEFAULT = Path('~/Library/Safari/Bookmarks.plist').expanduser().as_posix()
+
+DEFAULT_DATE_FORMAT = '%Y-%m-%d'
 
 def load_plist_file(file_path: str) -> dict:
 	with open(file_path, 'rb') as f:
@@ -78,12 +89,12 @@ def make_url_preview_datetime_list_of_reading_list(
 	has_url = ['URLString' in i for i in reading_list_items]  # not a bookmark unless has URL!
 
 	if any(has_title):
-		print(
+		print_err(
 			'WARNING: Some reading list items seem to be not bookmarks but containers (n = {})'
 			.format(sum(has_title))
 			)
 	if not all(has_url):
-		print(
+		print_err(
 			'WARNING: Some reading list items do not have URLs (n = {})'
 			.format(sum(has_url))
 			)
@@ -103,7 +114,7 @@ def make_url_preview_datetime_list_of_reading_list(
 
 				date_added = item_data.get('DateAdded')
 				if date_added:
-					date_added_str = date_added.strftime('%Y-%m-%d')
+					date_added_str = date_added.strftime(DEFAULT_DATE_FORMAT)
 
 				preview = item_data.get('PreviewText')
 
@@ -123,6 +134,7 @@ def make_url_preview_datetime_list_of_reading_list(
 
 	return new_rl_data
 
+# # Main (with argparse)
 
 if __name__ == '__main__':
 
@@ -156,21 +168,63 @@ if __name__ == '__main__':
 			action='store_true'
 		)
 
+	parser.add_argument(
+			'--exclude-older-than',
+			help='Exclude itmes with a date_added value older/equal than the date provided',
+			type=str
+		)
+	parser.add_argument(
+			'--date-strp-format',
+			help=f'Format for parsing a date provided as an argument.  Provided to datetime.strptime. Default: %(default)s',
+			default = DEFAULT_DATE_FORMAT,
+			type=str
+		)
+
+	# ## Get Data
+
 	args = parser.parse_args()
 
-	rl_data = get_reading_list_data(load_plist_file(args.file))
+	try:
+		raw_data = load_plist_file(args.file)
+	except Exception as e:
+		print_err(f"Couldn't load file at path {args.file}")
+		raise e
+
+	try:
+		rl_data = get_reading_list_data(raw_data)
+	except Exception as e:
+		print_err(f"Error while extracting reading list data from bookmarks data")
+		raise e
 
 	if rl_data is not None:
 		new_rl_data = make_url_preview_datetime_list_of_reading_list(rl_data)
 	else:
-		print(f'Failed to find reading list data in bookmarks (key: {READING_LIST_TITLE})')
+		print_err(f'Failed to find reading list data in bookmarks (key: {READING_LIST_TITLE})')
 		sys.exit()
+
+	# ## Process and filter
+
+	if args.exclude_older_than:
+		cutoff_date = dt.datetime.strptime(args.exclude_older_than, args.date_strp_format)
+		new_rl_data = [
+				rl_item
+				for rl_item in new_rl_data
+				if (
+						rl_item['date_added']  # will be None if no value available and so False-y
+						and
+						(
+							dt.datetime.strptime(rl_item['date_added'], DEFAULT_DATE_FORMAT)
+							>=
+							cutoff_date
+						)
+					)
+			]
 
 	if args.sort:
 		# check sort value actually available (could enforce in argparse, but maybe this is more flexible?)
 		sort_value = SORT_OPTIONS[args.sort]
 		if not sort_value in new_rl_data[0]:
-			print(f'Sort value not found in data ({sort_value})', file=sys.stderr)
+			print_err(f'Sort value not found in data ({sort_value})')
 			sys.exit()
 
 		new_rl_data = sorted(
@@ -183,8 +237,8 @@ if __name__ == '__main__':
 		try:
 			json_data = json.dumps(new_rl_data)
 		except Exception as e:
-			print('Failed to convert data to JSON',file=sys.stderr)
-			print('Exception trace:\n-------------\n\n', file=sys.stderr)
+			print_err('Failed to convert data to JSON')
+			print_err('Exception trace:\n-------------\n\n')
 			raise e
 		print(json_data)
 
@@ -202,7 +256,7 @@ if __name__ == '__main__':
 				for t in new_rl_data
 			)
 		except Exception as e:
-			print('Failed to convert data to string', file=sys.stderr)
+			print_err('Failed to convert data to string')
 			raise e
 
 		full_string = '\n---\n'.join(string_data)
