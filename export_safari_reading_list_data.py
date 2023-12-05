@@ -25,6 +25,8 @@ BOOKMARKS_PATH_DEFAULT = Path('~/Library/Safari/Bookmarks.plist').expanduser().a
 
 DEFAULT_DATE_FORMAT = '%Y-%m-%d'
 
+# # Function
+
 def load_plist_file(file_path: str) -> dict:
 	with open(file_path, 'rb') as f:
 		d = plistlib.load(f, fmt=plistlib.FMT_BINARY)
@@ -134,11 +136,14 @@ def make_url_preview_datetime_list_of_reading_list(
 
 	return new_rl_data
 
+
 # # Main (with argparse)
 
 if __name__ == '__main__':
 
 	parser = ArgumentParser(description='Convert bookmarked reading list data')
+
+	# ## CLI Arguments
 
 	parser.add_argument(
 			'-f', '--file',
@@ -180,9 +185,10 @@ if __name__ == '__main__':
 			type=str
 		)
 
-	# ## Get Data
 
 	args = parser.parse_args()
+
+	# ## Get Data
 
 	try:
 		raw_data = load_plist_file(args.file)
@@ -232,6 +238,8 @@ if __name__ == '__main__':
 					key = lambda x: x.get(sort_value) or '',
 					reverse = args.reverse
 				)
+
+	# ## Final formatting and printing
 
 	if args.format == 'JSON':
 		try:
