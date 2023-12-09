@@ -147,14 +147,14 @@ if __name__ == '__main__':
 
 	parser.add_argument(
 			'-f', '--file',
-			help='location of the bookmarks file',
+			help='Location of the bookmarks file. Default: %(default)s (standard location in home dir)',
 			default=BOOKMARKS_PATH_DEFAULT
 		)
 
 	FORMAT_OPTIONS = ('JSON', 'plain')
 	parser.add_argument(
 			'--format',
-			help=f'Format of output {FORMAT_OPTIONS}',
+			help=f'Format of output {FORMAT_OPTIONS}.  Default: %(default)s',
 			choices=FORMAT_OPTIONS,
 			default='JSON'
 		)
