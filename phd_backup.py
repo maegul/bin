@@ -59,21 +59,23 @@ mk_rysnc_path = 'rsync_net:science_backup/{}'.format
 # local path: s3 path
 back_up_paths = (
     # using os.path.expanduser in order to retain trailing slash?
-    BackUpPaths(
-        local= os.path.expanduser("~/Dropbox (Personal)/Science/"),
-        dest = mk_s3_path("Science/"), 
-        type='s3',
-        name='science work'),  # all of science main
-    BackUpPaths(
-        local = "/Volumes/MagellanSG/PhD/Data/",
-        dest = mk_s3_path("Data/"),
-        type = 's3',
-        name='science data'),  # actively analysed data
-    BackUpPaths(
-        local = "/Volumes/MagellanSG/Zotero/",
-        dest = mk_s3_path("Zotero/"),
-        type= 's3',
-        name='zotero'),  # zotero papers repository (pdfs and database)
+
+    # stop backing up to AWS S3 (2024-01-12)
+    # BackUpPaths(
+    #     local= os.path.expanduser("~/Dropbox (Personal)/Science/"),
+    #     dest = mk_s3_path("Science/"),
+    #     type='s3',
+    #     name='science work'),  # all of science main
+    # BackUpPaths(
+    #     local = "/Volumes/MagellanSG/PhD/Data/",
+    #     dest = mk_s3_path("Data/"),
+    #     type = 's3',
+    #     name='science data'),  # actively analysed data
+    # BackUpPaths(
+    #     local = "/Volumes/MagellanSG/Zotero/",
+    #     dest = mk_s3_path("Zotero/"),
+    #     type= 's3',
+    #     name='zotero'),  # zotero papers repository (pdfs and database)
     BackUpPaths(
         local= os.path.expanduser("~/Dropbox (Personal)/Science/"),
         dest = mk_rysnc_path("science/"),
