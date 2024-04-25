@@ -1,0 +1,7 @@
+{
+	// Install LSP-json to get validation and autocompletion in this file.
+	// "venvPath": ".",
+	"venvPath": "/Users/errollloyd/miniconda3/envs",
+	"venv": "general",
+}
+

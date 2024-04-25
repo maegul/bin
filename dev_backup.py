@@ -10,13 +10,13 @@ from dataclasses import dataclass
 from typing import Callable
 from contextlib import contextmanager
 
-# > main path
+# # main path
 main_path = Path('~/.dev_backup').expanduser()
 
 if not main_path.exists():
 	main_path.mkdir()
 
-# > logger setup
+# # logger setup
 main_logger = logging.getLogger('dev_backup')
 main_logger.setLevel(10)
 success_logger = logging.getLogger('dev_backup_success')
@@ -43,7 +43,7 @@ main_logger.addHandler(log_handler)
 success_logger.addHandler(success_time_handler)
 
 
-# > Utils
+# # Utils
 
 def current_time():
 	return dt.datetime.now().astimezone(dt.timezone.utc).isoformat()
@@ -97,7 +97,7 @@ class GenericGitBackup(DevDir):
 			# else:
 			# 	return 'No changes to commit'
 
-# > Backup dirs
+# # Backup dirs
 
 dev_dirs = [
 	GenericGitBackup(
