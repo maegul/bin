@@ -115,10 +115,11 @@ dev_dirs = [
 	# might want to create a better backup situation around this
 	# !! as copying an open sqlite database can be corrupting??
 	# at least the files are there!
-	GenericGitBackup(
-		'my zettelkasten',
-		Path('~/zekell/')
-		),
+	# Cancel storing on github ... inappropriate for personal information
+	# GenericGitBackup(
+	# 	'my zettelkasten',
+	# 	Path('~/zekell/')
+	# 	),
 	GenericGitBackup(
 		'my hammerspoon config',
 		Path('~/.hammerspoon/')
