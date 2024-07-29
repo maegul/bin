@@ -1,0 +1,17 @@
+#!/bin/bash
+
+pw_name="zekell_backup_pw"
+pw_account="errollloyd"
+encrypted_file="/Users/errollloyd/Library/Mobile Documents/com~apple~CloudDocs/backups/zekell_backup.db"
+decrypted_path="/tmp/decrypted_zekell_db.db"
+
+if ! cli_password=$(security find-generic-password -w -s "$pw_name" -a "$pw_account"); then
+  echo "could not get password, error $?"
+  exit 1
+fi
+
+echo "retrieved password"
+
+echo "decrypting to $decrypted_path"
+# decrypt
+openssl enc -d -aes-256-cbc -in "$encrypted_file" -pass "pass:$cli_password" > $decrypted_path

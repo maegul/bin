@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
 import os
+import shutil
 import logging
 from logging import handlers
 import subprocess as sp
 import datetime as dt
 from pathlib import Path
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, Optional
 from contextlib import contextmanager
 
 # # main path
@@ -62,6 +63,38 @@ def temp_dir(new_dir: Path):
 class DevDir:
 	name: str
 	path: Path
+
+@dataclass
+class EncryptedICloudBackup:
+	name: str
+	path: Path
+	dest: Path
+	pw_name: str
+	pw_account: str = "errollloyd"
+
+	def backup(self):
+		if self.dest is None:
+			raise ValueError("Must provide destination path (none provided)!")
+
+		# copy database file for safe keeping
+		path = self.path.expanduser()
+		dest = self.dest.expanduser()
+		shutil.copy(path, Path("/tmp/preserved_zekell_backup"))
+
+		# get encryption password
+		pw = sp.check_output([
+				"security", "find-generic-password", "-w",
+				'-s', self.pw_name, '-a', self.pw_account
+			])
+		pw = pw.decode().strip()
+
+		# Encrypt to dest path
+		_ = sp.check_output([
+				"openssl", "enc", "-aes-256-cbc",
+				"-in", path, "-out", dest,
+				"-pass", f"pass:{pw}"
+			])
+
 
 
 class GenericGitBackup(DevDir):
@@ -120,6 +153,13 @@ dev_dirs = [
 	# 	'my zettelkasten',
 	# 	Path('~/zekell/')
 	# 	),
+	EncryptedICloudBackup(
+		name = "my zekell backup",
+		path = Path("~/zekell/zekell.db"),
+		dest = Path(
+			"~/Library/Mobile Documents/com~apple~CloudDocs/backups/zekell_backup.db"),
+		pw_name = "zekell_backup_pw"
+		),
 	GenericGitBackup(
 		'my hammerspoon config',
 		Path('~/.hammerspoon/')
