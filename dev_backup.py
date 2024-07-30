@@ -64,6 +64,9 @@ class DevDir:
 	name: str
 	path: Path
 
+# encrypts with openssl, retrieving a password from macOS keychain using security CLI
+# then copies to an icloud destination
+# should double with an S3 backup too
 @dataclass
 class EncryptedICloudBackup:
 	name: str
@@ -94,6 +97,8 @@ class EncryptedICloudBackup:
 				"-in", path, "-out", dest,
 				"-pass", f"pass:{pw}"
 			])
+
+		return f"Encrypted to {dest}"
 
 
 
