@@ -1,4 +1,0 @@
-
-pw=$(security find-generic-password -w -s zekell_backup_pw -a errollloyd)
-
-echo $pw > /tmp/pwtest_file

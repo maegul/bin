@@ -1,0 +1,58 @@
+<!--
+Copy to ~/Library/LaunchAgents
+Run `launchctl load THISFILENAME`
+- existence in this directory should register this job on boot
+ -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+		<key>Label</key>
+		<string>com.errol.cronjobs</string>
+
+		<key>ProgramArguments</key>
+		<array>
+			<string>/Users/errollloyd/bin/dev_backup_script.sh</string>
+		</array>
+
+		<key>Nice</key>
+		<integer>1</integer>
+
+		<key>StartCalendarInterval</key>
+		<array>
+			<dict>
+				<key>Weekday</key>
+				<integer>1</integer>
+				<key>Hour</key>
+				<integer>23</integer>
+				<key>Minute</key>
+				<integer>3</integer>
+			</dict>
+			<dict>
+				<key>Weekday</key>
+				<integer>3</integer>
+				<key>Hour</key>
+				<integer>23</integer>
+				<key>Minute</key>
+				<integer>3</integer>
+			</dict>
+			<dict>
+				<key>Weekday</key>
+				<integer>5</integer>
+				<key>Hour</key>
+				<integer>23</integer>
+				<key>Minute</key>
+				<integer>3</integer>
+			</dict>
+		</array>
+
+		<key>RunAtLoad</key>
+		<false/>
+
+		<key>StandardErrorPath</key>
+		<string>/tmp/dev_backup_launchd.err</string>
+
+		<key>StandardOutPath</key>
+		<string>/tmp/dev_backup_launchd.out</string>
+	</dict>
+</plist>
