@@ -1,6 +1,7 @@
 #!/bin/bash
 
 
+# > Help
 if [ "$1" = "-h" ]; then
 	stmt1="Start socket wrapper around a REPL/program"
 	stmt2="Args: syntax full-command"
@@ -10,6 +11,8 @@ if [ "$1" = "-h" ]; then
 
 	exit
 fi
+
+# > Argument Management
 
 # Extract the first argument (a single word)
 syntax=$1
@@ -24,26 +27,34 @@ if [ -z "$syntax" ] || [ -z "$full_command" ]; then
 	exit
 fi
 
+# > Setting up variables
+
 echo -e "\nSyntax: '$syntax'\nCommand: '$full_command'"
 
 socket_name="soc"
 fifo_name="repl_fifo"
 
+# >> Socket and FIFO paths
 socket_dir="/tmp/$syntax"
 socket_path="$socket_dir/$socket_name"
 fifo_path="$socket_dir/$fifo_name"
 
+# > Setting things up
 mkdir -p $socket_dir
 
+# >> Manage Socket
+# May exist already, if so, delete
 if [ -S "$socket_path" ]; then
 	rm "$socket_path"
 fi
 
+# >> Manage FIFO
 # -p is for a file that's a named pipe
 if [ ! -p "$fifo_path" ]; then
 	mkfifo "$fifo_path"
 fi
 
+# > Run the Pipeline
 echo -e ""
 echo "Starting socket at '$socket_path' for syntax '$syntax'"
 
