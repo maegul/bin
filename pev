@@ -1,0 +1,35 @@
+
+####################
+# pyenv venv selector
+####################
+
+
+
+venv_dir="${HOME}/.pyenv_venv"
+env_selection=$1
+
+
+if [ -z "$env_selection" ]
+then
+    ls "$venv_dir" | awk '{printf("%d: %s\n", NR, $1)}'
+fi
+
+if [ -n "$env_selection" ]
+then
+
+    if [ "$env_selection" == "-h" ] || [ "$env_selection" == "--help" ]
+    then
+        echo "No args: list the environments ... "
+        echo "then provide the number to activate that environment"
+        echo "EG:"
+        echo -e "  pev \t\t\t (list environments)"
+        echo -e "  source \$(pev 3) \t (activate 3rd env)"
+        exit 0
+    fi
+
+    selected_env="$(ls "$venv_dir" | awk '{printf("%d: %s\n", NR, $1)}' | awk -v x=$env_selection 'NR==x{print $2}')"
+    source_dir="$venv_dir/$selected_env/bin/activate"
+
+    echo "$source_dir"
+fi
+
